@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Document Editor</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            padding: 20px;
+        }
+        #editor {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            margin-top: 10px;
+        }
+        button {
+            margin-right: 10px;
+        }
+        #stats {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML Document Editor</h1>
+    
+    <div>
+        <label for="lineLength">Enter Line Length (1-132): </label>
+        <input type="number" id="lineLength" value="80" min="1" max="132">
+    </div>
+
+    <div>
+        <label for="indentSpaces">Enter Indentation Spaces (Default: 5): </label>
+        <input type="number" id="indentSpaces" value="5" min="1">
+    </div>
+
+    <textarea id="editor" placeholder="Start typing your document..."></textarea>
+    
+    <div class="button-container">
+        <button id="saveButton">Save Document</button>
+        <button id="processButton">Process Text</button>
+        <button id="statsButton">Show Stats</button>
+    </div>
+
+    <div id="stats">
+        <p id="charCount">Characters: 0</p>
+        <p id="wordCount">Words: 0</p>
+        <p id="lineCount">Lines: 0</p>
+        <p id="paraCount">Paragraphs: 0</p>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const lineLengthInput = document.getElementById('lineLength');
+        const indentSpacesInput = document.getElementById('indentSpaces');
+        const saveButton = document.getElementById('saveButton');
+        const processButton = document.getElementById('processButton');
+        const statsButton = document.getElementById('statsButton');
+
+        // Backend URL
+        const backendUrl = 'http://localhost:3000';
+
+        // Process Text Function
+        processButton.addEventListener('click', async () => {
+            const lineLength = parseInt(lineLengthInput.value);
+            const indentSpaces = parseInt(indentSpacesInput.value);
+            const content = editor.value;
+
+            const response = await fetch(`${backendUrl}/process`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ content, lineLength, indentSpaces }),
+            });
+            
+            const result = await response.json();
+            editor.value = result.formattedContent;
+        });
+
+        // Save Document Function
+        saveButton.addEventListener('click', async () => {
+            const content = editor.value;
+            const fileName = prompt('Enter file name to save as:');
+
+            if (fileName) {
+                const response = await fetch(`${backendUrl}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content, fileName }),
+                });
+                const result = await response.json();
+                alert('Document saved successfully!');
+            }
+        });
+
+        // Show Document Stats
+        statsButton.addEventListener('click', () => {
+            const content = editor.value;
+            const lines = content.split('\n');
+            const words = content.split(/\s+/).filter(Boolean);
+            const paragraphs = content.split('\n\n').filter(Boolean);
+            
+            document.getElementById('charCount').textContent = `Characters: ${content.length}`;
+            document.getElementById('wordCount').textContent = `Words: ${words.length}`;
+            document.getElementById('lineCount').textContent = `Lines: ${lines.length}`;
+            document.getElementById('paraCount').textContent = `Paragraphs: ${paragraphs.length}`;
+        });
+    </script>
+</body>
+</html>
