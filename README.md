@@ -35,6 +35,5 @@ This software allows users to create, edit, and manipulate HTML files through a 
 7. **Save Documents**
    - Users can save their documents under a name of their choosing.
 
-8. **Import Documents and Images**
-   - Users can import documents and images in predefined formats (e.g., text files, image files).
+
 
